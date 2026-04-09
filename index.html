@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Why and How Your Canvas Grade Changes</title>
+  <style>
+    :root {
+      --bg: #f7f3ec;
+      --panel: rgba(255,255,255,0.92);
+      --panel-strong: #ffffff;
+      --border: #e8dfd1;
+      --text: #243042;
+      --muted: #6d5f52;
+      --accent: #8c5e3c;
+      --accent-soft: #ead6c4;
+      --green: #456b57;
+      --gold: #b88a3b;
+      --shadow: 0 18px 40px rgba(62, 45, 26, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --focus: 0 0 0 3px rgba(140, 94, 60, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #f5efe4 0%, #faf7f2 45%, #ffffff 100%);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 18px;
+    }
+
+    .page {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 34px 28px;
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      font-size: 14px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 10px;
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+      color: #1f2937;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.1;
+      margin-bottom: 14px;
+    }
+
+    h2 {
+      font-size: 1.45rem;
+      margin-bottom: 10px;
+    }
+
+    h3 {
+      font-size: 1.08rem;
+      margin-bottom: 8px;
+    }
+
+    p {
+      margin-top: 0;
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+      margin-top: 22px;
+    }
+
+    .note-box,
+    .mini-card {
+      background: var(--panel-strong);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 18px;
+    }
+
+    .note-box strong {
+      color: var(--accent);
+    }
+
+    .note-box p:last-child,
+    .mini-card p:last-child {
+      margin-bottom: 0;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 24px;
+    }
+
+    .controls-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      border: 1px solid #d8c5b1;
+      background: #fffaf5;
+      color: #5d4330;
+      border-radius: 999px;
+      padding: 11px 15px;
+      font-size: 0.96rem;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    button:hover,
+    button:focus-visible {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+      outline: none;
+      box-shadow: var(--focus);
+    }
+
+    .slider-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 10px;
+    }
+
+    .slider-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .slider-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+
+    .slider-title {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .weight-tag {
+      font-size: 0.88rem;
+      color: var(--muted);
+      background: #f8f2ea;
+      border: 1px solid #eadfce;
+      padding: 4px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .slider-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.92rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .results-stack {
+      display: grid;
+      gap: 16px;
+      position: sticky;
+      top: 16px;
+    }
+
+    .grade-box {
+      background: linear-gradient(135deg, #fff8f0 0%, #ffffff 100%);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 20px;
+    }
+
+    .grade-value {
+      font-size: clamp(2.2rem, 6vw, 3.6rem);
+      line-height: 1;
+      margin: 8px 0 4px;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .grade-letter {
+      font-size: 1.06rem;
+      font-weight: 700;
+      color: var(--green);
+      margin-bottom: 14px;
+    }
+
+    .progress-shell {
+      width: 100%;
+      height: 18px;
+      background: #efe6dc;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #c98f5f 0%, #8c5e3c 100%);
+      width: 0%;
+      transition: width 0.25s ease;
+    }
+
+    .impact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .impact-card,
+    .explanation-box,
+    .contribution-box,
+    .challenge-box {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 18px;
+    }
+
+    .impact-label {
+      font-size: 0.86rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .impact-value {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .contribution-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .contribution-item {
+      display: grid;
+      gap: 6px;
+    }
+
+    .contribution-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.96rem;
+    }
+
+    .bar-shell {
+      width: 100%;
+      height: 12px;
+      background: #f2ebe3;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #d6ac62 0%, #8c5e3c 100%);
+      width: 0%;
+      transition: width 0.25s ease;
+    }
+
+    .explanation-box {
+      background: #fffdf9;
+    }
+
+    .challenge-list {
+      margin: 0;
+      padding-left: 22px;
+    }
+
+    .challenge-list li + li {
+      margin-top: 10px;
+    }
+
+    .footer-note {
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 0.93rem;
+    }
+
+    .submission-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 18px;
+      margin-bottom: 16px;
+      font-size: 0.98rem;
+    }
+
+    .submission-result-box {
+      background: #fffaf5;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .submission-result-box p:last-child {
+      margin-bottom: 0;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 130px;
+      border: 1px solid #d9cdbd;
+      border-radius: 16px;
+      padding: 14px;
+      font: inherit;
+      color: var(--text);
+      background: #fff;
+      resize: vertical;
+    }
+
+    textarea:focus-visible {
+      outline: none;
+      box-shadow: var(--focus);
+      border-color: var(--accent);
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 980px) {
+      .intro-grid,
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .results-stack {
+        position: static;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        font-size: 17px;
+      }
+
+      .hero,
+      .panel {
+        padding: 18px;
+        border-radius: 22px;
+      }
+
+      .controls-header {
+        flex-direction: column;
+      }
+
+      .impact-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .slider-top,
+      .slider-meta,
+      .contribution-line {
+        flex-direction: column;
+        align-items: start;
+      }
+
+      .submission-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .hero,
+      .panel > *:not(.submission-panel) {
+        display: none !important;
+      }
+
+      .page,
+      .main-grid,
+      .panel,
+      .results-stack {
+        max-width: 100%;
+        width: 100%;
+        display: block;
+        padding: 0;
+        margin: 0;
+        box-shadow: none;
+        background: #fff;
+        border: none;
+      }
+
+      .submission-panel {
+        display: block !important;
+        box-shadow: none;
+        border: 1px solid #ccc;
+        background: #fff;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .button-row,
+      #printBtn {
+        display: none !important;
+      }
+
+      textarea {
+        border: 1px solid #999;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero" aria-labelledby="page-title">
+      <p class="eyebrow">ENG 101 Grade Tool</p>
+      <h1 id="page-title">How and Why Your Canvas Grade Changes</h1>
+      <p>
+        In this course, Canvas uses <strong>weighted assignment groups</strong>. That means not every category affects your total grade equally.
+        Use the sliders below to test different score combinations and see how your overall grade changes.
+      </p>
+
+      <div class="intro-grid">
+        <div class="note-box">
+          <h2 style="margin-bottom: 8px;">What matters most here?</h2>
+          <p>
+            The largest category in this course is <strong>Final Essays</strong>, which counts for <strong>30%</strong> of the total grade.
+            On Canvas, those finals are listed together as one assignment group, but in this class that group includes <strong>two 100-point final essays</strong>.
+          </p>
+          <p>
+            Because both final essays are worth the same number of points inside that group, each final essay effectively counts as <strong>15%</strong> of the total course grade.
+          </p>
+          <p>
+            Attendance, Minor Assignments, and Essay Draft &amp; Worksheets also matter a lot because each of those categories counts for <strong>20%</strong>.
+          </p>
+        </div>
+
+        <div class="mini-card">
+          <h2 style="margin-bottom: 8px;">ENG 101 weights</h2>
+          <p style="margin-bottom: 0;">
+            Attendance 20%<br />
+            Check In 10%<br />
+            Minor Assignments 20%<br />
+            Essay Draft &amp; Worksheets 20%<br />
+            Final Essay 1 15%<br />
+            Final Essay 2 15%
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="main-grid">
+      <section class="panel" aria-labelledby="controls-title">
+        <div class="controls-header">
+          <div>
+            <h2 id="controls-title">Move the sliders</h2>
+            <p style="margin-bottom: 0; color: var(--muted);">
+              Change each category average from 0 to 100 and watch the weighted total update instantly.
+            </p>
+          </div>
+
+          <div class="button-row" aria-label="Scenario buttons">
+            <button type="button" data-scenario="balanced">Balanced example</button>
+            <button type="button" data-scenario="essayDrop">Why did my grade drop?</button>
+            <button type="button" data-scenario="smallWorkHigh">Smaller work is strong</button>
+            <button type="button" data-scenario="missingFinal">Missing one final</button>
+            <button type="button" data-scenario="recovery">Improve a final essay</button>
+            <button type="button" id="resetBtn">Reset</button>
+          </div>
+        </div>
+
+        <div class="slider-list" id="sliderList"></div>
+
+        <p class="footer-note">
+          Tip: A 10-point change in a heavily weighted category usually affects your total much more than a 10-point change in a smaller category.
+        </p>
+      </section>
+
+      <aside class="results-stack" aria-label="Live results panel">
+        <div class="grade-box">
+          <div class="impact-label">Current course grade</div>
+          <div class="grade-value" id="gradeValue">0%</div>
+          <div class="grade-letter" id="gradeLetter">Course point grade: 0.0</div>
+          <div class="progress-shell" aria-hidden="true">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+
+        <div class="impact-grid">
+          <div class="impact-card">
+            <div class="impact-label">Biggest impact</div>
+            <div class="impact-value" id="largestImpact">Final Essay 1 / Final Essay 2</div>
+          </div>
+          <div class="impact-card">
+            <div class="impact-label">Smallest impact</div>
+            <div class="impact-value" id="smallestImpact">Check In</div>
+          </div>
+        </div>
+
+        <div class="explanation-box" aria-live="polite">
+          <h3>Why did the grade change?</h3>
+          <p id="explanationText" style="margin-bottom: 0;"></p>
+        </div>
+
+        <div class="contribution-box">
+          <h3>Weighted contribution by category</h3>
+          <p style="color: var(--muted); margin-bottom: 0;">
+            This shows how many points each category is currently adding to the final course grade.
+          </p>
+          <div class="contribution-list" id="contributionList"></div>
+        </div>
+
+        <div class="challenge-box">
+          <h3>Try these</h3>
+          <ol class="challenge-list">
+            <li>Can you make a student earn 100% in Check In but still have only a 1.0 overall?</li>
+            <li>Which single category helps the total most if you raise it by 10 points?</li>
+            <li>What happens if one final essay is strong and the other is missing?</li>
+          </ol>
+        </div>
+
+        <div class="challenge-box" aria-live="polite">
+          <h3>Deliverable: missing one final essay</h3>
+          <p>
+            In this scenario, imagine a student misses <strong>Final Essay 2</strong> and gets a <strong>0</strong> there. Since each final essay is effectively worth <strong>15%</strong> of the total course grade, missing one final creates a large gap right away.
+          </p>
+          <p id="deliverableText" style="margin-bottom: 10px;"></p>
+          <p style="margin-bottom: 0; color: var(--muted);">
+            Student task: Set Final Essay 2 to 0. Then move the other sliders until the student still reaches at least a <strong>1.0</strong>. When you find a combination that works, complete the short response and save your submission as a PDF.
+          </p>
+        </div>
+
+        <div class="challenge-box submission-panel print-only-shell" id="submissionPanel">
+          <h3>Submission box</h3>
+          <p style="margin-bottom: 14px; color: var(--muted);">
+            This is the part that will print. When you are ready, click the button below to save this box as a PDF.
+          </p>
+
+          <div class="submission-grid" id="submissionGrid">
+            <div><strong>Attendance:</strong> <span id="submit-attendance">92%</span></div>
+            <div><strong>Check In:</strong> <span id="submit-checkin">100%</span></div>
+            <div><strong>Minor Assignments:</strong> <span id="submit-minor">88%</span></div>
+            <div><strong>Essay Draft &amp; Worksheets:</strong> <span id="submit-drafts">85%</span></div>
+            <div><strong>Final Essay 1:</strong> <span id="submit-final1">78%</span></div>
+            <div><strong>Final Essay 2:</strong> <span id="submit-final2">84%</span></div>
+          </div>
+
+          <div class="submission-result-box">
+            <p><strong>Final percentage:</strong> <span id="submit-total">0%</span></p>
+            <p><strong>Course point grade:</strong> <span id="submit-point">0.0</span></p>
+          </div>
+
+          <label for="responseBox" style="display: block; font-weight: 700; margin-bottom: 8px;">Short written response</label>
+          <textarea id="responseBox" rows="6" placeholder="Which categories mattered most in helping the student still pass with one final essay missing? Explain in 1–2 sentences."></textarea>
+
+          <div class="button-row" style="margin-top: 14px;">
+            <button type="button" id="printBtn">Print / Save as PDF</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const categories = [
+      { key: 'attendance', label: 'Attendance', weight: 20, defaultValue: 92 },
+      { key: 'checkin', label: 'Check In', weight: 10, defaultValue: 100 },
+      { key: 'minor', label: 'Minor Assignments', weight: 20, defaultValue: 88 },
+      { key: 'drafts', label: 'Essay Draft & Worksheets', weight: 20, defaultValue: 85 },
+      { key: 'final1', label: 'Final Essay 1', weight: 15, defaultValue: 78 },
+      { key: 'final2', label: 'Final Essay 2', weight: 15, defaultValue: 84 }
+    ];
+
+    const scenarios = {
+      balanced: {
+        values: {
+          attendance: 92,
+          checkin: 100,
+          minor: 88,
+          drafts: 85,
+          final1: 78,
+          final2: 84
+        }
+      },
+      essayDrop: {
+        values: {
+          attendance: 95,
+          checkin: 100,
+          minor: 92,
+          drafts: 90,
+          final1: 68,
+          final2: 70
+        }
+      },
+      smallWorkHigh: {
+        values: {
+          attendance: 88,
+          checkin: 100,
+          minor: 96,
+          drafts: 94,
+          final1: 64,
+          final2: 66
+        }
+      },
+      missingFinal: {
+        values: {
+          attendance: 95,
+          checkin: 100,
+          minor: 90,
+          drafts: 88,
+          final1: 85,
+          final2: 0
+        }
+      },
+      recovery: {
+        values: {
+          attendance: 88,
+          checkin: 96,
+          minor: 84,
+          drafts: 82,
+          final1: 62,
+          final2: 90
+        }
+      }
+    };
+
+    const sliderList = document.getElementById('sliderList');
+    const contributionList = document.getElementById('contributionList');
+    const gradeValue = document.getElementById('gradeValue');
+    const gradeLetter = document.getElementById('gradeLetter');
+    const progressFill = document.getElementById('progressFill');
+    const explanationText = document.getElementById('explanationText');
+    const largestImpact = document.getElementById('largestImpact');
+    const smallestImpact = document.getElementById('smallestImpact');
+    const resetBtn = document.getElementById('resetBtn');
+    const deliverableText = document.getElementById('deliverableText');
+    const printBtn = document.getElementById('printBtn');
+
+    function getPointGrade(grade) {
+      if (grade >= 94) return '4.0';
+      if (grade >= 90) return '3.7';
+      if (grade >= 87) return '3.3';
+      if (grade >= 83) return '3.0';
+      if (grade >= 80) return '2.7';
+      if (grade >= 77) return '2.3';
+      if (grade >= 73) return '2.0';
+      if (grade >= 70) return '1.7';
+      if (grade >= 67) return '1.3';
+      if (grade >= 63) return '1.0';
+      return '0.0';
+    }
+
+    function buildSliders() {
+      sliderList.innerHTML = '';
+
+      categories.forEach((category) => {
+        const card = document.createElement('div');
+        card.className = 'slider-card';
+        card.innerHTML = `
+          <div class="slider-top">
+            <div class="slider-title">${category.label}</div>
+            <div class="weight-tag">Weight: ${category.weight}%</div>
+          </div>
+          <div class="slider-meta">
+            <span id="${category.key}-reading">Current average: ${category.defaultValue}%</span>
+            <span>${category.weight}% of course grade</span>
+          </div>
+          <label class="sr-only" for="${category.key}">${category.label} average</label>
+          <input type="range" id="${category.key}" min="0" max="100" step="1" value="${category.defaultValue}" />
+        `;
+        sliderList.appendChild(card);
+      });
+
+      categories.forEach((category) => {
+        const input = document.getElementById(category.key);
+        input.addEventListener('input', () => {
+          document.getElementById(`${category.key}-reading`).textContent = `Current average: ${input.value}%`;
+          updatePage();
+        });
+      });
+    }
+
+    function getCurrentValues() {
+      const values = {};
+      categories.forEach((category) => {
+        values[category.key] = Number(document.getElementById(category.key).value);
+      });
+      return values;
+    }
+
+    function buildExplanation(values, total) {
+      if (values.final2 === 0 || values.final1 === 0) {
+        return 'A missing final essay has a large effect here because each final essay is effectively worth 15% of the total course grade. On Canvas, the finals are listed together as one 30% group, but because both essays are 100 points, one missing essay creates a major drop by itself.';
+      }
+
+      if (values.checkin >= 95 && (values.final1 < 75 || values.final2 < 75)) {
+        return 'Check In is strong, but it only counts for 10% of the course. It helps, but it cannot fully cancel out lower scores in the final essays.';
+      }
+
+      if ((values.final1 < 75 || values.final2 < 75) && total < 80) {
+        return 'The grade is being pulled down most by one or both final essays. That makes sense in this course because Final Essays is the largest assignment group on Canvas at 30%, and each final essay is effectively worth 15%.';
+      }
+
+      if (values.attendance < 75 || values.minor < 75 || values.drafts < 75) {
+        return 'A drop in Attendance, Minor Assignments, or Essay Draft & Worksheets matters a lot in this course because each of those categories is worth 20%. They affect the total much more than Check In.';
+      }
+
+      if (values.final1 >= 85 && values.final2 >= 85 && total >= 85) {
+        return 'Your total is being helped by strong performance in the highest-value parts of the course. When both final essays are strong, they give your grade a major lift because together they count for 30%.';
+      }
+
+      return 'Right now, the biggest shifts are coming from the most heavily weighted categories. In ENG 101, Final Essays, Attendance, Minor Assignments, and Essay Draft & Worksheets usually move the total more than Check In.';
+    }
+
+    function updatePage() {
+      const values = getCurrentValues();
+
+      const contributions = categories.map((category) => {
+        const contribution = (values[category.key] / 100) * category.weight;
+        return {
+          ...category,
+          contribution
+        };
+      });
+
+      const total = contributions.reduce((sum, item) => sum + item.contribution, 0);
+      const roundedTotal = Math.round(total * 100) / 100;
+      const pointGrade = getPointGrade(roundedTotal);
+
+      gradeValue.textContent = `${roundedTotal}%`;
+      gradeLetter.textContent = `Course point grade: ${pointGrade}`;
+      progressFill.style.width = `${Math.max(0, Math.min(100, roundedTotal))}%`;
+
+      largestImpact.textContent = 'Final Essay 1 / Final Essay 2';
+      smallestImpact.textContent = 'Check In';
+
+      explanationText.textContent = buildExplanation(values, roundedTotal);
+
+      contributionList.innerHTML = '';
+      contributions.forEach((item) => {
+        const contributionRounded = Math.round(item.contribution * 100) / 100;
+        const fillWidth = Math.max(0, Math.min(100, (item.contribution / item.weight) * 100));
+
+        const wrap = document.createElement('div');
+        wrap.className = 'contribution-item';
+        wrap.innerHTML = `
+          <div class="contribution-line">
+            <span>${item.label}</span>
+            <span>${contributionRounded}% out of ${item.weight}% of the course grade</span>
+          </div>
+          <div class="bar-shell" aria-hidden="true">
+            <div class="bar-fill" style="width: ${fillWidth}%;"></div>
+          </div>
+        `;
+        contributionList.appendChild(wrap);
+      });
+
+      categories.forEach((category) => {
+        const submitField = document.getElementById(`submit-${category.key}`);
+        if (submitField) {
+          submitField.textContent = `${values[category.key]}%`;
+        }
+      });
+
+      document.getElementById('submit-total').textContent = `${roundedTotal}%`;
+      document.getElementById('submit-point').textContent = pointGrade;
+
+      const neededAverageAcrossRemaining = (63 / 85) * 100;
+      if (deliverableText) {
+        if (values.final2 === 0) {
+          deliverableText.textContent = `To still earn at least a 1.0 with Final Essay 2 missing, a student would need about ${neededAverageAcrossRemaining.toFixed(1)}% across the other 85% of the course. Right now, this setup gives a total grade of ${roundedTotal}%, which converts to a ${pointGrade}.`;
+        } else {
+          deliverableText.textContent = `If Final Essay 2 were missing and counted as a 0, a student would need about ${neededAverageAcrossRemaining.toFixed(1)}% across the other 85% of the course to still reach a 1.0 overall. Try setting Final Essay 2 to 0 and see how close different score combinations get.`;
+        }
+      }
+    }
+
+    function applyScenario(name) {
+      const scenario = scenarios[name];
+      if (!scenario) return;
+
+      categories.forEach((category) => {
+        const value = scenario.values[category.key];
+        const input = document.getElementById(category.key);
+        input.value = value;
+        document.getElementById(`${category.key}-reading`).textContent = `Current average: ${value}%`;
+      });
+
+      updatePage();
+    }
+
+    document.addEventListener('click', (event) => {
+      const scenarioName = event.target.getAttribute('data-scenario');
+      if (scenarioName) {
+        applyScenario(scenarioName);
+      }
+    });
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        applyScenario('balanced');
+      });
+    }
+
+    if (printBtn) {
+      printBtn.addEventListener('click', () => {
+        window.print();
+      });
+    }
+
+    buildSliders();
+    applyScenario('balanced');
+  </script>
+</body>
+</html>
