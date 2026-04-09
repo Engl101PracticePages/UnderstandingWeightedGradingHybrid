@@ -492,7 +492,7 @@
             Because both final essays are worth the same number of points inside that group, each final essay effectively counts as <strong>15%</strong> of the total course grade.
           </p>
           <p>
-            Attendance, Minor Assignments, and Essay Draft &amp; Worksheets also matter a lot because each of those categories counts for <strong>20%</strong>.
+            Even when categories look similar in total weight, they do not always work the same way. <strong>Minor Assignments</strong> and <strong>Essay Draft &amp; Worksheets</strong> are usually made up of many smaller assignments, so one low score often has a smaller effect. <strong>Final Essay 1</strong> and <strong>Final Essay 2</strong>, however, are single assignments worth about <strong>15% each</strong>, so one low or missing score there can change the course grade much more quickly.
           </p>
         </div>
 
@@ -587,7 +587,7 @@
           </p>
           <p id="deliverableText" style="margin-bottom: 10px;"></p>
           <p style="margin-bottom: 0; color: var(--muted);">
-            Student task: Set Final Essay 2 to 0. Then move the other sliders until the student still reaches at least a <strong>1.0</strong>. When you find a combination that works, complete the short response and save your submission as a PDF.
+            Student task: Set <strong>Final Essay 2</strong> to 0. Your goal is to find a combination of scores in the other categories that gives the student a final course grade of <strong>2.3</strong>. When you find one, complete the short response and save your submission as a PDF.
           </p>
         </div>
 
@@ -612,7 +612,7 @@
           </div>
 
           <label for="responseBox" style="display: block; font-weight: 700; margin-bottom: 8px;">Short written response</label>
-          <textarea id="responseBox" rows="6" placeholder="Which categories mattered most in helping the student still pass with one final essay missing? Explain in 1–2 sentences."></textarea>
+          <textarea id="responseBox" rows="6" placeholder="Which categories mattered most in helping the student still reach a 2.3 with one final essay missing? Explain in 1–2 sentences."></textarea>
 
           <div class="button-row" style="margin-top: 14px;">
             <button type="button" id="printBtn">Print / Save as PDF</button>
@@ -751,7 +751,7 @@
 
     function buildExplanation(values, total) {
       if (values.final2 === 0 || values.final1 === 0) {
-        return 'A missing final essay has a large effect here because each final essay is effectively worth 15% of the total course grade. On Canvas, the finals are listed together as one 30% group, but because both essays are 100 points, one missing essay creates a major drop by itself.';
+        return 'A missing final essay has a large effect here because each final essay is effectively worth 15% of the total course grade. One missing essay creates a much bigger shift than one low worksheet or one low minor assignment.';
       }
 
       if (values.checkin >= 95 && (values.final1 < 75 || values.final2 < 75)) {
@@ -759,18 +759,18 @@
       }
 
       if ((values.final1 < 75 || values.final2 < 75) && total < 80) {
-        return 'The grade is being pulled down most by one or both final essays. That makes sense in this course because Final Essays is the largest assignment group on Canvas at 30%, and each final essay is effectively worth 15%.';
+        return 'The grade is being pulled down most by one or both final essays. Those essays matter a lot because each one is effectively worth 15% of the course grade.';
       }
 
       if (values.attendance < 75 || values.minor < 75 || values.drafts < 75) {
-        return 'A drop in Attendance, Minor Assignments, or Essay Draft & Worksheets matters a lot in this course because each of those categories is worth 20%. They affect the total much more than Check In.';
+        return 'A drop in Attendance, Minor Assignments, or Essay Draft & Worksheets matters a lot because those are larger categories. Still, one low score inside a multi-assignment category usually has a smaller effect than one low final essay.';
       }
 
       if (values.final1 >= 85 && values.final2 >= 85 && total >= 85) {
         return 'Your total is being helped by strong performance in the highest-value parts of the course. When both final essays are strong, they give your grade a major lift because together they count for 30%.';
       }
 
-      return 'Right now, the biggest shifts are coming from the most heavily weighted categories. In ENG 101, Final Essays, Attendance, Minor Assignments, and Essay Draft & Worksheets usually move the total more than Check In.';
+      return 'Right now, the biggest shifts are coming from the most heavily weighted categories. In ENG 101, the final essays usually move the total faster than one individual smaller assignment does.';
     }
 
     function updatePage() {
@@ -826,12 +826,14 @@
       document.getElementById('submit-total').textContent = `${roundedTotal}%`;
       document.getElementById('submit-point').textContent = pointGrade;
 
-      const neededAverageAcrossRemaining = (63 / 85) * 100;
+      const targetFor23 = 77;
+      const neededAverageAcrossRemaining = (targetFor23 / 85) * 100;
+
       if (deliverableText) {
         if (values.final2 === 0) {
-          deliverableText.textContent = `To still earn at least a 1.0 with Final Essay 2 missing, a student would need about ${neededAverageAcrossRemaining.toFixed(1)}% across the other 85% of the course. Right now, this setup gives a total grade of ${roundedTotal}%, which converts to a ${pointGrade}.`;
+          deliverableText.textContent = `To reach a 2.3 with Final Essay 2 missing, a student would need about ${neededAverageAcrossRemaining.toFixed(1)}% across the other 85% of the course. Right now, this setup gives a total grade of ${roundedTotal}%, which converts to a ${pointGrade}.`;
         } else {
-          deliverableText.textContent = `If Final Essay 2 were missing and counted as a 0, a student would need about ${neededAverageAcrossRemaining.toFixed(1)}% across the other 85% of the course to still reach a 1.0 overall. Try setting Final Essay 2 to 0 and see how close different score combinations get.`;
+          deliverableText.textContent = `If Final Essay 2 were missing and counted as a 0, a student would need about ${neededAverageAcrossRemaining.toFixed(1)}% across the other 85% of the course to reach a 2.3 overall. Try setting Final Essay 2 to 0 and see how close different score combinations get.`;
         }
       }
     }
