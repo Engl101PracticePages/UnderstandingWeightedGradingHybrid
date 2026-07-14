@@ -470,6 +470,18 @@
       }
     }
   </style>
+
+  <style>
+    @media print {
+      textarea {
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        resize: none !important;
+        white-space: pre-wrap !important;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="page">
@@ -873,6 +885,32 @@
 
     buildSliders();
     applyScenario('balanced');
+  </script>
+
+  <script>
+    (function () {
+      const savedPrintHeights = new Map();
+
+      function expandResponsesForPrint() {
+        document.querySelectorAll('textarea').forEach(function (field) {
+          savedPrintHeights.set(field, field.style.height);
+          field.style.height = 'auto';
+          field.style.height = field.scrollHeight + 'px';
+          field.style.overflow = 'visible';
+        });
+      }
+
+      function restoreResponseHeights() {
+        document.querySelectorAll('textarea').forEach(function (field) {
+          field.style.height = savedPrintHeights.get(field) || '';
+          field.style.overflow = '';
+        });
+        savedPrintHeights.clear();
+      }
+
+      window.addEventListener('beforeprint', expandResponsesForPrint);
+      window.addEventListener('afterprint', restoreResponseHeights);
+    })();
   </script>
 </body>
 </html>
